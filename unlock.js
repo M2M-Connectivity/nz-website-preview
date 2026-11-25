@@ -10,7 +10,7 @@ form.addEventListener('submit',async event=>{
   key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:payload.slice(0,16),iterations:600000,hash:'SHA-256'},material,{name:'AES-GCM',length:256},true,['decrypt']);}
   const bytes=await crypto.subtle.decrypt({name:'AES-GCM',iv:payload.slice(16,28)},key,payload.subarray(28));
   const html=await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
-  if(key.extractable)sessionStorage.setItem(slot,btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.exportKey('raw',key)))));field.value='';document.open();document.write(html);document.close();
+  if(key.extractable)sessionStorage.setItem(slot,btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.exportKey('raw',key)))));field.value='';document.open();document.write(html.replace('<head>','<head><script defer src="/nz-website-preview/transition.js"></script>'));document.close();
  }catch(error){sessionStorage.removeItem(slot);gate.hidden=false;statusLine.textContent=error.name==='OperationError'?'Incorrect password. Try again.':'Could not open the preview. Reload and try again.';form.querySelector('button').disabled=false;field.focus();}
 });
 if(sessionStorage.getItem(slot)){
