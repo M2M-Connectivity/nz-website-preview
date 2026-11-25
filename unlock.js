@@ -1,5 +1,6 @@
 (()=>{
 const form=document.querySelector('form'),field=document.querySelector('input'),statusLine=document.querySelector('[role=status]');
+const gate=form.closest('main');
 let payload;const slot='nz-preview-session-v1';
 form.addEventListener('submit',async event=>{
  event.preventDefault();form.querySelector('button').disabled=true;statusLine.textContent='Opening preview…';
@@ -10,7 +11,11 @@ form.addEventListener('submit',async event=>{
   const bytes=await crypto.subtle.decrypt({name:'AES-GCM',iv:payload.slice(16,28)},key,payload.subarray(28));
   const html=await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
   if(key.extractable)sessionStorage.setItem(slot,btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.exportKey('raw',key)))));field.value='';document.open();document.write(html);document.close();
- }catch(error){sessionStorage.removeItem(slot);statusLine.textContent=error.name==='OperationError'?'Incorrect password. Try again.':'Could not open the preview. Reload and try again.';form.querySelector('button').disabled=false;field.focus();}
+ }catch(error){sessionStorage.removeItem(slot);gate.hidden=false;statusLine.textContent=error.name==='OperationError'?'Incorrect password. Try again.':'Could not open the preview. Reload and try again.';form.querySelector('button').disabled=false;field.focus();}
 });
-if(sessionStorage.getItem(slot))form.dispatchEvent(new Event('submit',{cancelable:true}));
+if(sessionStorage.getItem(slot)){
+ form.dispatchEvent(new Event('submit',{cancelable:true}));
+}else{
+ gate.hidden=false;
+}
 })();
