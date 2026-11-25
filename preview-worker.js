@@ -19,7 +19,7 @@ self.addEventListener('fetch',event=>{
    const key=await crypto.subtle.importKey('raw',Uint8Array.from(atob(grant.key),c=>c.charCodeAt(0)),'AES-GCM',false,['decrypt']);
    const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:data.subarray(16,28)},key,data.subarray(28));
    const html=await new Response(new Blob([plain]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
-   const setup='<script>const previewURL=new URL(location.href);previewURL.searchParams.delete("_nznav");history.replaceState(history.state,"",previewURL.href);</script><script defer src="/nz-website-preview/transition.js"></script>';
+   const setup='<script>const previewURL=new URL(location.href);previewURL.searchParams.delete("_nznav");history.replaceState(history.state,"",previewURL.href);</script><script src="/nz-website-preview/transition.js"></script>';
    return new Response(html.replace('<head>','<head>'+setup),{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','Referrer-Policy':'no-referrer'}});
   }catch{return Response.redirect(url.href)}
  })());
